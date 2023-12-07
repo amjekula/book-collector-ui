@@ -3,7 +3,6 @@ package com.payu.client.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @EqualsAndHashCode
@@ -16,7 +15,6 @@ public class Book {
 
     private String isbnNumber;
 
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private String publishDate;
 
     private double price;

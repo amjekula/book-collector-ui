@@ -1,9 +1,7 @@
 package com.payu.client.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payu.client.model.Book;
 import com.payu.client.model.BookType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +26,6 @@ import java.util.List;
         produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE})
 public class BookCollectorController {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     private static final String BASE_URL= "http://localhost:8080/book/collector";
 
     @GetMapping
@@ -45,7 +40,6 @@ public class BookCollectorController {
         } catch (Exception e) {
             model.addAttribute("message", e.getMessage());
         }
-
         return "book_collector";
     }
 
@@ -63,24 +57,16 @@ public class BookCollectorController {
         } catch (Exception e) {
             model.addAttribute("message", e.getMessage());
         }
-
         return "book_collector";
     }
 
     @GetMapping("/create")
     public String addBookForm(Model model) {
         Book book = new Book();
-
         model.addAttribute("book", book);
-        model.addAttribute("pageTitle", "Create new Book");
-
-        return "book_collector_form";
-    }
-
-    @GetMapping("/types")
-    public String showBookTypes(Model model) {
-        System.out.println(BookType.values());
         model.addAttribute("bookTypes", BookType.values());
+
+        model.addAttribute("pageTitle", "Create new Book");
         return "book_collector_form";
     }
 
@@ -98,7 +84,6 @@ public class BookCollectorController {
         } catch (Exception e) {
             redirectAttributes.addAttribute("message", e.getMessage());
         }
-
         return "redirect:/ui/books";
     }
 
@@ -115,12 +100,11 @@ public class BookCollectorController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("message", e.getMessage());
         }
-
         return "redirect:/ui/books";
     }
 
     @GetMapping("/get/{bookId}")
-    public String getBook(@PathVariable("bookId") Integer bookId, Model model, RedirectAttributes redirectAttributes) {
+    public String getBook(@PathVariable("bookId") Long bookId, Model model, RedirectAttributes redirectAttributes) {
         try {
             Client client = ClientBuilder.newClient();
             WebTarget target = client.target(BASE_URL);
@@ -128,9 +112,11 @@ public class BookCollectorController {
             Book book = response.readEntity(new GenericType<Book>() {});
 
             model.addAttribute("book", book);
-            model.addAttribute("pageTitle", "Edit Book (ID: " + book.getId() + ")");
+            model.addAttribute("bookTypes", BookType.values());
 
+            model.addAttribute("pageTitle", "Edit Book (ID: " + book.getId() + ")");
             return "book_collector_update_form";
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("message", e.getMessage());
             return "redirect:/ui/books";
