@@ -1,4 +1,4 @@
-package com.payu.client.model;
+package com.payu.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

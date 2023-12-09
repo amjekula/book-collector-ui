@@ -78,11 +78,10 @@
                 <td>R [[${book.price}]]</td>
                 <td>[[${book.bookType}]]</td>
                 <td>
-                    <a th:href="@{'/ui/books/get/' + ${book.id}}" title="Edit this book"
-                       class="fa-regular fa-pen-to-square icon-dark"></a>
+                    <a th:href="@{'/ui/books/get/' + ${book.id}}" title="Edit this book"><u>Edit</u></a>
                     &nbsp;
                     <a th:href="@{'/ui/books/delete/' + ${book.id}}" th:bookName="${book.name}" id="btnDelete"
-                       title="Delete this book" class="fa-regular fa-trash-can icon-dark btn-delete"></a>
+                       title="Delete this book" class="btn-delete"><u>Delete</u></a>
                 </td>
             </tr>
             </tbody>

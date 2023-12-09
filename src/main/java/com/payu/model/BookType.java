@@ -1,4 +1,4 @@
-package com.payu.client.model;
+package com.payu.model;
 
 public enum BookType {
 
