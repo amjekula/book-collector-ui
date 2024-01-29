@@ -1,5 +1,3 @@
 server:
   port: 8081
-
-client:
   baseUrl: http://localhost:8080/book/collector

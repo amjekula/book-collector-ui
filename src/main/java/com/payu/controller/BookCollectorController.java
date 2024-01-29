@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.ws.rs.PathParam;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,15 +24,13 @@ import java.util.List;
         produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE})
 public class BookCollectorController {
 
-    @Value(value = "${client.baseUrl}")
+    @Value(value = "${server.baseUrl}")
     private String baseUrl;
 
     @GetMapping
     public String getAllBooks(Model model) {
         try {
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(baseUrl);
-            Response response = target.path("/list").request(MediaType.APPLICATION_JSON).get();
+            Response response = requestBuilder("/list").get();
             List<Book> books = response.readEntity(new GenericType<List<Book>>() {});
             model.addAttribute("books", books);
 
@@ -48,12 +43,10 @@ public class BookCollectorController {
     @GetMapping("/search")
     public String findBookByName(Model model, @PathParam("bookName") String bookName) {
         try {
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(baseUrl);
-            Response response = target.path("/find/" + bookName).request(MediaType.APPLICATION_JSON).get();
+            Response response = requestBuilder("/find/" + bookName.trim()).get();
             List<Book> books = response.readEntity(new GenericType<List<Book>>() {});
 
-            model.addAttribute("bookName", bookName);
+            model.addAttribute("bookName", bookName.trim());
             model.addAttribute("books", books);
 
         } catch (Exception e) {
@@ -75,9 +68,7 @@ public class BookCollectorController {
     @PostMapping("/add")
     public String addBook(Book book, RedirectAttributes redirectAttributes) {
         try {
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(baseUrl);
-            Response response = target.path("/add").request(MediaType.APPLICATION_JSON).post(Entity.json(book));
+            Response response = requestBuilder("/add").post(Entity.json(book));
             Book bookResponse = response.readEntity(new GenericType<Book>() {});
 
             redirectAttributes.addFlashAttribute("message", "The Book (ID: " + bookResponse.getId()
@@ -92,9 +83,7 @@ public class BookCollectorController {
     @GetMapping("/delete/{bookId}")
     public String deleteBook(@PathVariable("bookId") Long bookId, RedirectAttributes redirectAttributes) {
         try {
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(baseUrl);
-            target.path("/delete/" + bookId).request(MediaType.APPLICATION_JSON).delete();
+            requestBuilder("/delete/" + bookId).delete();
 
             redirectAttributes.addFlashAttribute("message", "The Book (ID: " + bookId
                     + ") has been deleted successfully!");
@@ -108,9 +97,7 @@ public class BookCollectorController {
     @GetMapping("/get/{bookId}")
     public String getBook(@PathVariable("bookId") Long bookId, Model model, RedirectAttributes redirectAttributes) {
         try {
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(baseUrl);
-            Response response = target.path("/get/" + bookId).request(MediaType.APPLICATION_JSON).get();
+            Response response = requestBuilder("/get/" + bookId).get();
             Book book = response.readEntity(new GenericType<Book>() {});
 
             model.addAttribute("book", book);
@@ -128,9 +115,7 @@ public class BookCollectorController {
     @PostMapping("/edit")
     public String editBook(Book book, RedirectAttributes redirectAttributes) {
         try {
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(baseUrl);
-            Response response = target.path("/update").request(MediaType.APPLICATION_JSON).post(Entity.json(book));
+            Response response = requestBuilder("/update").post(Entity.json(book));
             Book bookResponse = response.readEntity(new GenericType<Book>() {});
 
             redirectAttributes.addFlashAttribute("message", "Book (ID: " + bookResponse.getId()
@@ -140,5 +125,11 @@ public class BookCollectorController {
             redirectAttributes.addFlashAttribute("message", e.getMessage());
         }
         return "redirect:/ui/books";
+    }
+
+    private Invocation.Builder requestBuilder(String url) {
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(baseUrl);
+        return target.path(url).request(MediaType.APPLICATION_JSON);
     }
 }
